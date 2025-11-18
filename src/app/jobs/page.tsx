@@ -44,11 +44,11 @@ const jobs = [
     tags: ['Luxury', 'Sales', 'Branding'],
     },
     {
-    title: 'Data Scientist',
+    title: 'Data Entry',
     company: 'Quantum Analytics',
     location: '',
     type: 'Full-time',
-    tags: ['Python', 'Machine Learning', 'Big Data'],
+    tags: ['Data Entry', 'Accuracy', 'Typing'],
     },
     {
     title: 'UX/UI Designer',
