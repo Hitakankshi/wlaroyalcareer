@@ -44,12 +44,12 @@ export default function LoginPage() {
 
   async function onSubmit(data: FormData) {
     try {
-      await signInWithEmail(auth, data.email, data.password);
+      const { redirectPath } = await signInWithEmail(auth, data.email, data.password);
       toast({
         title: 'Signed In!',
         description: "You've successfully signed in.",
       });
-      router.push('/student/dashboard');
+      router.push(redirectPath);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -61,12 +61,12 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle(auth);
+      const { redirectPath } = await signInWithGoogle(auth);
       toast({
         title: 'Signed In!',
         description: "You've successfully signed in with Google.",
       });
-      router.push('/student/dashboard');
+      router.push(redirectPath);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -78,12 +78,12 @@ export default function LoginPage() {
 
   const handleFacebookSignIn = async () => {
     try {
-      await signInWithFacebook(auth);
+      const { redirectPath } = await signInWithFacebook(auth);
       toast({
         title: 'Signed In!',
         description: "You've successfully signed in with Facebook.",
       });
-      router.push('/student/dashboard');
+      router.push(redirectPath);
     } catch (error: any) {
       toast({
         variant: 'destructive',

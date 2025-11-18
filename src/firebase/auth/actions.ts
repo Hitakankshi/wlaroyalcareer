@@ -9,15 +9,33 @@ import {
   FacebookAuthProvider,
   updateProfile,
   signOut as firebaseSignOut,
+  User,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { getFirestore } from 'firebase/firestore';
+import { doc, setDoc, getDoc, getFirestore } from 'firebase/firestore';
+
+async function isUserAdmin(user: User): Promise<boolean> {
+  if (!user) return false;
+  const firestore = getFirestore(user.app);
+  const adminRoleRef = doc(firestore, `roles_admin/${user.uid}`);
+  const adminDoc = await getDoc(adminRoleRef);
+  return adminDoc.exists();
+}
+
+async function getRedirectPath(user: User): Promise<string> {
+    const isAdmin = await isUserAdmin(user);
+    return isAdmin ? '/employer/dashboard' : '/student/dashboard';
+}
+
 
 // Helper function to create user document in Firestore
 async function createUserDocument(user: any, additionalData: any = {}) {
   if (!user) return;
   const firestore = getFirestore(user.app);
   const userRef = doc(firestore, `users/${user.uid}`);
+  
+  // Check if the user document already exists
+  const userDoc = await getDoc(userRef);
+
   const { displayName, email, photoURL } = user;
   const userData = {
     id: user.uid,
@@ -26,11 +44,12 @@ async function createUserDocument(user: any, additionalData: any = {}) {
     photoURL,
     firstName: additionalData.firstName || '',
     lastName: additionalData.lastName || '',
-    signUpDate: new Date().toISOString(),
     lastLogin: new Date().toISOString(),
+    // Only set signUpDate if the document doesn't exist
+    ...(!userDoc.exists() && { signUpDate: new Date().toISOString() })
   };
 
-  // Use setDoc with merge to avoid overwriting existing data if any
+  // Use setDoc with merge to create or update the user document
   await setDoc(userRef, userData, { merge: true });
 }
 
@@ -42,7 +61,8 @@ export async function signUpWithEmail(auth: Auth, email: string, password: strin
     displayName: `${additionalData.firstName} ${additionalData.lastName}`.trim(),
   });
   await createUserDocument(user, additionalData);
-  return userCredential;
+  const redirectPath = await getRedirectPath(user);
+  return { userCredential, redirectPath };
 }
 
 // Sign in with email and password
@@ -50,7 +70,8 @@ export async function signInWithEmail(auth: Auth, email: string, password: strin
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const userRef = doc(getFirestore(auth.app), `users/${userCredential.user.uid}`);
   await setDoc(userRef, { lastLogin: new Date().toISOString() }, { merge: true });
-  return userCredential;
+  const redirectPath = await getRedirectPath(userCredential.user);
+  return { userCredential, redirectPath };
 }
 
 // Sign in with Google
@@ -59,10 +80,11 @@ export async function signInWithGoogle(auth: Auth) {
   const userCredential = await signInWithPopup(auth, provider);
   const user = userCredential.user;
   const nameParts = user.displayName?.split(' ') || [];
-  const firstName = nameParts[0];
+  const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ');
   await createUserDocument(user, { firstName, lastName });
-  return userCredential;
+  const redirectPath = await getRedirectPath(user);
+  return { userCredential, redirectPath };
 }
 
 // Sign in with Facebook
@@ -71,10 +93,11 @@ export async function signInWithFacebook(auth: Auth) {
   const userCredential = await signInWithPopup(auth, provider);
   const user = userCredential.user;
   const nameParts = user.displayName?.split(' ') || [];
-  const firstName = nameParts[0];
+  const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ');
   await createUserDocument(user, { firstName, lastName });
-  return userCredential;
+  const redirectPath = await getRedirectPath(user);
+  return { userCredential, redirectPath };
 }
 
 
