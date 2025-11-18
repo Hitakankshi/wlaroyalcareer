@@ -143,7 +143,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                         <h4 className="font-semibold text-foreground">Our Office</h4>
-                        <p>123 Luxury Lane, Suite 100<br/>Metropolis, ST 12345</p>
+                        <p>NIT,BBSR,4th floor</p>
                     </div>
                 </div>
                  <div className="flex items-start gap-4">
