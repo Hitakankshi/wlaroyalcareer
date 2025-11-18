@@ -28,19 +28,21 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import Image from 'next/image';
+import { useAuth, useFirestore, useUser } from '@/firebase';
+import { addDoc, collection } from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const baseSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
   skills: z.string().min(3, { message: 'Please list at least one skill.' }),
+  coverLetter: z.string().optional(),
 });
 
 const withResumeSchema = baseSchema.extend({
   resume: z.any().refine((files) => files?.length === 1, 'Resume is required.'),
 });
-
-type FormData = z.infer<typeof baseSchema>;
 
 interface ApplicationFormProps {
   type: 'job' | 'internship' | 'course';
@@ -49,6 +51,10 @@ interface ApplicationFormProps {
 export function ApplicationForm({ type }: ApplicationFormProps) {
   const { toast } = useToast();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const isJobOrInternship = type === 'job' || type === 'internship';
   const formSchema = isJobOrInternship ? withResumeSchema : baseSchema;
@@ -56,33 +62,68 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
+      name: user?.displayName || '',
+      email: user?.email || '',
       phone: '',
       skills: '',
+      coverLetter: '',
       ...(isJobOrInternship && { resume: undefined }),
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    if (type === 'course') {
-        toast({
-            title: 'Application Submitted!',
-            description: `Thank you, ${data.name}. Please complete the payment.`,
-        });
-        setIsPaymentDialogOpen(true);
-    } else {
-        toast({
-            title: 'Application Submitted!',
-            description: `Thank you for applying, ${data.name}. We will be in touch shortly.`,
-        });
-        form.reset();
+    if (!user || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be signed in to apply.',
+      });
+      router.push('/login');
+      return;
+    }
+    
+    try {
+      const applicationsRef = collection(firestore, 'users', user.uid, 'applications');
+      const applicationData = {
+        userProfileId: user.uid,
+        applicationDate: new Date().toISOString(),
+        status: 'pending',
+        coverLetter: data.coverLetter,
+        type: type,
+        ...(type === 'job' && { jobPostingId: searchParams.get('id') || 'general' }),
+        ...(type === 'internship' && { internshipId: searchParams.get('id') || 'general' }),
+        ...(type === 'course' && { courseId: searchParams.get('id') || 'general' }),
+      };
+
+      await addDoc(applicationsRef, applicationData);
+
+      if (type === 'course') {
+          toast({
+              title: 'Application Submitted!',
+              description: `Thank you, ${data.name}. Please complete the payment.`,
+          });
+          setIsPaymentDialogOpen(true);
+      } else {
+          toast({
+              title: 'Application Submitted!',
+              description: `Thank you for applying, ${data.name}. We will be in touch shortly.`,
+          });
+          form.reset();
+          router.push('/student/dashboard');
+      }
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Application Failed',
+        description: 'There was an error submitting your application. Please try again.',
+      });
     }
   }
 
   const closePaymentDialog = () => {
     setIsPaymentDialogOpen(false);
     form.reset();
+    router.push('/student/dashboard');
   }
 
   return (
@@ -170,6 +211,23 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
                   </FormItem>
                 )}
               />
+                <FormField
+                    control={form.control}
+                    name="coverLetter"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Cover Letter (Optional)</FormLabel>
+                        <FormControl>
+                            <Textarea
+                            placeholder="Tell us a little bit about yourself and why you're a good fit."
+                            className="resize-none"
+                            {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
               <Button type="submit" size="lg" className="w-full md:w-auto">Submit Application</Button>
             </form>
           </Form>
