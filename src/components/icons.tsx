@@ -5,8 +5,8 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 200 50"
-      width="200"
+      viewBox="0 0 240 50"
+      width="240"
       height="50"
     >
       <defs>
@@ -16,14 +16,14 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
         </linearGradient>
       </defs>
       <text
-        x="10"
+        x="5"
         y="35"
         fontFamily="'Playfair Display', serif"
-        fontSize="30"
+        fontSize="28"
         fill="url(#goldGradient)"
         fontWeight="bold"
       >
-        Royal Ascent
+        WonderlightAdventure
       </text>
     </svg>
   );

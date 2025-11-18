@@ -5,7 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 
 export const metadata: Metadata = {
-  title: 'Royal Ascent Careers',
+  title: 'WonderlightAdventure Careers',
   description: 'A luxury platform for job postings, internships, and online courses.',
 };
 

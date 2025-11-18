@@ -9,9 +9,9 @@ export function About() {
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto grid grid-cols-1 items-center gap-12 md:grid-cols-2">
         <div className="order-2 md:order-1">
-          <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">About Royal Ascent</h2>
+          <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">About WonderlightAdventure</h2>
           <p className="mt-4 text-foreground/80">
-            Founded on the principles of excellence and exclusivity, Royal Ascent Careers is the premier destination for ambitious professionals and forward-thinking companies. We bridge the gap between exceptional talent and extraordinary opportunities.
+            Founded on the principles of excellence and exclusivity, WonderlightAdventure Careers is the premier destination for ambitious professionals and forward-thinking companies. We bridge the gap between exceptional talent and extraordinary opportunities.
           </p>
           <p className="mt-4 text-foreground/80">
             Our curated platform offers not just jobs, but career-defining moves. With a suite of premium courses, we empower individuals to master their craft and ascend to new heights. We are more than a service; we are a partner in your journey to the top.

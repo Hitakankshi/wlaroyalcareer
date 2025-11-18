@@ -13,7 +13,7 @@ export default function Footer() {
             <Logo className="h-8 w-auto" />
           </Link>
           <p className="text-foreground/60">
-            Elevate your career to royal standards. Find exclusive jobs, internships, and courses.
+            Elevate your career to new heights. Find exclusive jobs, internships, and courses.
           </p>
           <div className="flex gap-2">
             <Input placeholder="Enter your email" className="max-w-xs" />
@@ -50,7 +50,7 @@ export default function Footer() {
       <div className="border-t border-border/40">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
           <p className="text-sm text-foreground/60">
-            © {new Date().getFullYear()} Royal Ascent Careers. All rights reserved.
+            © {new Date().getFullYear()} WonderlightAdventure Careers. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link href="#" className="text-foreground/60 hover:text-primary"><Twitter size={20} /></Link>

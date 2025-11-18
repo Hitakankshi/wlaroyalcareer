@@ -21,10 +21,10 @@ export function Hero() {
       <div className="absolute inset-0 bg-black/60" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
         <h1 className="font-headline text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-          Ascend to Your Royal Career
+          Embark on Your Wonderlight Adventure
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-foreground/80 md:text-xl">
-          Discover exclusive opportunities and premium courses designed for the elite. Your ascent begins here.
+          Discover exclusive opportunities and premium courses designed for the elite. Your adventure begins here.
         </p>
         <div className="mt-8 flex gap-4">
           <Button asChild size="lg">

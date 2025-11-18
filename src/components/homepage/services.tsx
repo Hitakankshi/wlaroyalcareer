@@ -29,7 +29,7 @@ export function Services() {
     <section className="py-16 md:py-24 bg-card">
       <div className="container mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Our Royal Services</h2>
+          <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Our Services</h2>
           <p className="mt-2 text-lg text-foreground/80 max-w-2xl mx-auto">
             Providing a comprehensive suite of services to elevate careers and organizations.
           </p>
