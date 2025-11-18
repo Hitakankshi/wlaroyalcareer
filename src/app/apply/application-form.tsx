@@ -28,8 +28,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import Image from 'next/image';
-import { useAuth, useFirestore, useUser } from '@/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { useAuth, useDatabase, useUser } from '@/firebase';
+import { ref, push, set } from 'firebase/database';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const baseSchema = z.object({
@@ -52,7 +52,7 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
   const { toast } = useToast();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { user } = useUser();
-  const firestore = useFirestore();
+  const database = useDatabase();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -72,7 +72,7 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    if (!user || !firestore) {
+    if (!user || !database) {
       toast({
         variant: 'destructive',
         title: 'Authentication Error',
@@ -83,19 +83,25 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
     }
     
     try {
-      const applicationsRef = collection(firestore, 'users', user.uid, 'applications');
+      const applicationsRef = ref(database, 'applications');
+      const newApplicationRef = push(applicationsRef);
+      
+      // We are not handling file uploads for resume yet.
+      // This will be implemented in a future step.
+      const { resume, ...formData } = data as any;
+
       const applicationData = {
+        ...formData,
         userProfileId: user.uid,
         applicationDate: new Date().toISOString(),
         status: 'pending',
-        coverLetter: data.coverLetter,
         type: type,
         ...(type === 'job' && { jobPostingId: searchParams.get('id') || 'general' }),
         ...(type === 'internship' && { internshipId: searchParams.get('id') || 'general' }),
         ...(type === 'course' && { courseId: searchParams.get('id') || 'general' }),
       };
 
-      await addDoc(applicationsRef, applicationData);
+      await set(newApplicationRef, applicationData);
 
       if (type === 'course') {
           toast({
