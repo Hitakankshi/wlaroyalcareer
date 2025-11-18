@@ -33,7 +33,6 @@ const baseSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
-  experience: z.string().min(20, { message: 'Please summarize your experience.' }),
   skills: z.string().min(3, { message: 'Please list at least one skill.' }),
 });
 
@@ -60,7 +59,6 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
       name: '',
       email: '',
       phone: '',
-      experience: '',
       skills: '',
       ...(isJobOrInternship && { resume: undefined }),
     },
@@ -159,24 +157,6 @@ export function ApplicationForm({ type }: ApplicationFormProps) {
                   )}
                 />
               )}
-              <FormField
-                control={form.control}
-                name="experience"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Experience Summary</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Summarize your professional experience..."
-                        className="resize-none"
-                        rows={5}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="skills"
