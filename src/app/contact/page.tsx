@@ -161,7 +161,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                         <h4 className="font-semibold text-foreground">Call Us</h4>
-                        <p>(123) 456-7890</p>
+                        <p>8117026570</p>
                     </div>
                 </div>
             </div>
