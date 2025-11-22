@@ -18,12 +18,15 @@ export default function StudentDashboardPage() {
     if (!firestore || !user) return null;
     return query(
       collection(firestore, `users/${user.uid}/applications`),
-      orderBy('applicationDate', 'desc'),
-      limit(5)
+      orderBy('applicationDate', 'desc')
     );
   }, [firestore, user]);
 
   const { data: applications, isLoading: isLoadingApplications } = useCollection(applicationsQuery);
+
+  const courseApplications = applications?.filter(app => app.type === 'course') || [];
+  const jobAndInternshipApplications = applications?.filter(app => app.type === 'job' || app.type === 'internship') || [];
+
 
   const getApplicationTitle = (app: any) => {
     if (app.type === 'job') return `Job: ${app.jobPostingId || 'General Application'}`;
@@ -31,6 +34,13 @@ export default function StudentDashboardPage() {
     if (app.type === 'course') return `Course: ${app.courseId || 'General Registration'}`;
     return 'Application';
   }
+
+  const getCourseTitle = (app: any) => {
+    // This could be enhanced to fetch course name from a 'courses' collection
+    // using the app.courseId
+    return app.courseId ? `Registration for ${app.courseId}` : 'Course Registration';
+  };
+
 
   return (
     <div className="container mx-auto max-w-7xl py-16 md:py-24">
@@ -51,10 +61,34 @@ export default function StudentDashboardPage() {
             <BookOpen className="h-8 w-8 text-primary/50" />
           </CardHeader>
           <CardContent>
-            <p>You are currently enrolled in 3 courses.</p>
-            <Button asChild variant="link" className="p-0 mt-2">
-                <Link href="/courses">View Courses &rarr;</Link>
-            </Button>
+            {isUserLoading || isLoadingApplications ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ) : courseApplications.length > 0 ? (
+              <>
+                <p>You have applied for {courseApplications.length} course(s).</p>
+                <div className="mt-4 space-y-2">
+                  {courseApplications.map((app) => (
+                    <div key={app.id} className="flex justify-between items-center text-sm p-2 rounded-md bg-secondary/30">
+                      <span>{getCourseTitle(app)}</span>
+                      <Badge variant={app.status === 'pending' ? 'secondary' : 'default'}>{app.status}</Badge>
+                    </div>
+                  ))}
+                </div>
+                 <Button asChild variant="link" className="p-0 mt-2">
+                    <Link href="/courses">Explore More Courses &rarr;</Link>
+                </Button>
+              </>
+            ) : (
+                <>
+                    <p>You have not enrolled in any courses yet.</p>
+                     <Button asChild variant="link" className="p-0 mt-2">
+                        <Link href="/courses">View Courses &rarr;</Link>
+                    </Button>
+                </>
+            )}
           </CardContent>
         </Card>
 
@@ -62,7 +96,7 @@ export default function StudentDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1.5">
                 <CardTitle className="font-headline text-xl text-primary">My Applications</CardTitle>
-                <CardDescription>Track your job applications</CardDescription>
+                <CardDescription>Track your job & internship applications</CardDescription>
             </div>
             <Briefcase className="h-8 w-8 text-primary/50" />
           </CardHeader>
@@ -73,11 +107,11 @@ export default function StudentDashboardPage() {
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
-            ) : applications && applications.length > 0 ? (
+            ) : jobAndInternshipApplications && jobAndInternshipApplications.length > 0 ? (
               <>
-                <p>You have {applications.length} recent application(s).</p>
+                <p>You have {jobAndInternshipApplications.length} recent application(s).</p>
                  <div className="mt-4 space-y-2">
-                  {applications.map((app) => (
+                  {jobAndInternshipApplications.slice(0,5).map((app) => (
                     <div key={app.id} className="flex justify-between items-center text-sm p-2 rounded-md bg-secondary/30">
                       <span>{getApplicationTitle(app)}</span>
                       <Badge variant={app.status === 'pending' ? 'secondary' : 'default'}>{app.status}</Badge>
@@ -89,7 +123,7 @@ export default function StudentDashboardPage() {
                 </Button>
               </>
             ) : (
-              <p>You have not submitted any applications yet.</p>
+              <p>You have not submitted any job or internship applications yet.</p>
             )}
           </CardContent>
         </Card>
